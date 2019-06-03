@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GT Cost</title>
+</head>
+<body bgcolor=#454345>
+  <div class="TitleContainer">
+    <h1>GTCost</h1>
+  </div>
+
+  <div class="infoContainer">
+    <p>Distancia (Kms.)</p>
+
+    <div class="slidecontainer">
+      <input type="range" min="1" max="200" value="0" class="slider" id="slider1">
+      <div class="Unidades">
+        <p><span id="slider1View"></span>
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="infoContainer">
+    <p>Velocidad (Km/h.)</p>
+
+    <div class="slidecontainer">
+      <input type="range" min="1" max="200" value="90" class="slider" id="slider2">
+      <div class="Unidades">
+        <p><span id="slider2View"></span></p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="infoContainer">
+    <p>Inclinacion</p>
+
+    <div class="slidecontainer">
+      <input type="range" step= 0.1 min="-10" max="10" value="0" class="slider" id="slider3">
+      <div class="Unidades">
+        <p><span id="slider3View"></span></p>
+      </div>
+    </div>
+
+
+  </div>
+
+  <div class="infoContainer">
+    <p>Factor Aerodinamica</p>
+
+    <label class="Radios">Con techo
+    <input type="radio" name="techo" id="techoID" value=true onclick="setTecho(true)" checked>
+    <span class="checkmark"></span>
+    </label>
+    <label class="Radios">Sin techo
+    <input type="radio" name="techo" id="techoID" value=false onclick="setTecho(false)">
+    <span class="checkmark"></span>
+    </label>
+
+
+  </div>
+
+  <div class="infoContainer">
+    <p>Temperatura (°C)</p>
+
+    <div class="slidecontainer">
+      <input type="range" min="3" max="30" value="20" class="slider" id="slider5">
+      <div class="Unidades">
+        <p><span id="slider5View"></span></p>
+      </div>
+    </div>
+
+
+  </div>
+
+  <div class="infoContainer">
+    <p>Altura (mts)</p>
+
+    <div class="slidecontainer">
+      <input type="range" min="0" max="2000" value="0" class="slider" id="slider6">
+      <div class="Unidades">
+        <p><span id="slider6View"></span></p>
+      </div>
+    </div>
+
+
+  </div>
+
+  <div class="infoContainer">
+    <p>Octanaje</p>
+
+    <div class="slidecontainer">
+      <label class="Radios">Magna
+      <input type="radio" name="octanaje" id="magna" value="Magna" onclick="setOct('magna')" checked>
+      <span class="checkmark"></span>
+      </label>
+      <label class="Radios">Premium
+      <input type="radio" name="octanaje" id="premium" value="Premium" onclick="setOct('premium')">
+      <span class="checkmark"></span>
+      </label>
+      <label class="Radios">E85
+      <input type="radio" name="octanaje" id="e85" value="E85" onclick="setOct('e85')">
+      <span class="checkmark"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="Resultados">
+    <div class="DatosContainer">
+      <div class="dato">
+        <span id="consumo"></span>Km/L
+      </div>
+    </div>
+    <div class="TitulosDatos">
+      <p>Rendimiento</p>
+    </div>
+
+    <div class="DatosContainer">
+      <div class="dato">
+        <span id="horas"></span>Hrs
+      </div>
+    </div>
+    <div class="TitulosDatos">
+      <p>Tiempo de Viaje</p>
+    </div>
+  </div>
+
+  <button type="button" name="button" onclick="calcular()">Calcular!</button>
+
+</body>
+</html>
+
+<script type="text/javascript">
+  var slider = document.getElementById("slider1");
+  var output = document.getElementById("slider1View");
+  output.innerHTML = slider.value;
+
+  slider.oninput = function() {
+    output.innerHTML = this.value;
+  }
+
+
+  var slider2 = document.getElementById("slider2");
+  var output2 = document.getElementById("slider2View");
+  output2.innerHTML = slider2.value;
+
+  slider2.oninput = function() {
+    output2.innerHTML = this.value;
+  }
+
+
+  var slider3 = document.getElementById("slider3");
+  var output3 = document.getElementById("slider3View");
+  output3.innerHTML = slider3.value;
+
+  slider3.oninput = function() {
+    output3.innerHTML = this.value;
+  }
+
+
+
+
+
+  var slider5 = document.getElementById("slider5");
+  var output5 = document.getElementById("slider5View");
+  output5.innerHTML = slider5.value;
+
+  slider5.oninput = function() {
+    output5.innerHTML = this.value;
+  }
+
+
+  var slider6 = document.getElementById("slider6");
+  var output6 = document.getElementById("slider6View");
+  output6.innerHTML = slider6.value;
+
+  slider6.oninput = function() {
+    output6.innerHTML = this.value;
+  }
+
+  var oct =document.getElementById("magna");
+  var techo=true;
+
+  function calcular(){
+    var defaultConsume=10.4;
+    var porcent=0;
+
+    //Obtencion de datos
+    var distance=document.getElementById("slider1").value;
+    var velocity=document.getElementById("slider2").value;
+    var inclination=document.getElementById("slider3").value;
+    var temp=document.getElementById("slider5").value;
+    var height=document.getElementById("slider6").value;
+
+    //obtencion de porcentaje perdido por Velocidad
+    porcent += calcVel(velocity);
+
+    //obtencion de porcentaje perdido por inclinación
+    porcent += calcInc(inclination);
+
+    //obtencion de porcentaje perdido por techo
+    porcent += calcTecho(velocity);
+
+    //Obtencion de porcentaje perdido por temperatura
+    porcent += calcTemp(temp);
+
+    //obtencion de porcentaje perdido por altura
+    porcent += height/100
+
+    //Cálculo de consumo
+    var consume=defaultConsume * calcConsum(porcent) /100;
+
+    var hours=calcTime(distance,velocity);
+
+    //Muestra de datos calculados
+    var hoursLabel= document.getElementById("horas");
+    var consumeLabel= document.getElementById("consumo");
+    consumeLabel.innerHTML =consume.toPrecision(3);
+    hoursLabel.innerHTML = hours.toPrecision(3);
+
+  }
+
+  function calcVel(velocity){
+    if(velocity == 90){
+      return 0;
+    }
+    else if(velocity>90){
+      return (velocity-90)/10;
+    }
+    else {
+      return (90-velocity)/12;
+    }
+  }
+
+  function calcInc(inc){
+    if(inc==0){
+      return 0;
+    }
+    else if(inc<0){
+      return (60*inc);
+    }
+    else {
+      return 10*inc;
+    }
+  }
+
+  function calcTecho(vel){
+    if(!techo){
+      if(vel>40){
+        return (vel-40)*.7
+      }
+    }
+    return 0;
+  }
+
+  function calcTemp(temp){
+    if(temp == 20){
+      return 0;
+    }
+    else if(temp>20) {
+      return (temp-20);
+    }
+    else {
+      return (20-temp);
+    }
+  }
+
+  function calcConsum(porcent){
+    return 100-porcent;
+  }
+
+  function calcTime(dist,vel){
+    return (dist/vel)*1.05;
+  }
+
+  function setOct(id){
+    oct=document.getElementById(id);
+  }
+
+  function setTecho(id){
+    techo=id
+  }
+</script>
